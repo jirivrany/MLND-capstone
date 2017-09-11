@@ -13,7 +13,7 @@ Gravity anomaly is the difference between expected and observed gravity value. T
  
 ### Datasets and Inputs
 
-Traditional geophysical surveys do not provide enough data to train the machine learning models. Either the datasets are small or not available for public or both. Thus the artificial dataset with several anomaly types was created. This dataset is based on the models described in [1].  The real field data do not correspond with the artificial model, but can be interpolated to the same format with the gridding process. 
+    Traditional geophysical surveys do not provide enough data to train the machine learning models. Either the datasets are small or not available for public or both. Thus the artificial dataset with several anomaly types was created. This dataset is based on the models described in [1].  The real field data do not correspond with the artificial model, but can be interpolated to the same format with the gridding process. 
  
 Dataset consists 47890 synthetical models for the area of size 100x100 meters. The sampling step in measuring is 1 m. Modeled anomalies are:  spherical anomaly, vertical cylinder, horizontal cylinder and rectangular prism.  All anomalies have random size, and each model contains a random level of noise. Each of the models can be represented with 100x100x1 tensor with a known label. Dataset also contains a subset of the random noise only data - without any modeled anomaly.
 
