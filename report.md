@@ -76,7 +76,7 @@ Looking to the examples of each anomaly we can see, that the potential field for
 
 ### Algorithms and Techniques
 
-The Convolutional Neural Networks (CNN) are considered as a state-of-the-art in the field image recognition. In many research papers and real situations, they are reported to work well for finding patterns in the images and for the image classification. Detail description of CNN can be found lecture notes of A. Karpathy [KARPATHY]
+The Convolutional Neural Networks (CNN) are considered as a state-of-the-art in the field image recognition. In many research papers and real situations, they are reported to work well for finding patterns in the images and for the image classification. Detail description of CNN can be found lecture notes of A. Karpathy [7]
 
 Let's briefly recap that typical CNN is composed of several layers. The input layer in our case is the potential field represented by a 2D array. In general, it can be an image in RGB or another format, once again in form of 2D array. The input layer is connected to several convolutional layers, typically more than two.  In convolutional layer, we apply set of filters to the input to generate new features.  Next, the output of convolutional layer is used as the input of pooling layer. Pooling layer contains the activation function and the downsampling operation. 
 
@@ -216,5 +216,6 @@ poster and paper
 
 [6] Alex Krizhevsky and Sutskever, Ilya and Hinton, Geoffrey E: ImageNet Classification with Deep Convolutional Neural Networks, Advances in Neural Information Processing Systems 25, 2012
 
+[7] Karpathy A.: CS231n Convolutional Neural Networks for Visual Recognition lecture notes
 
 
