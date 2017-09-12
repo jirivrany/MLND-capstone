@@ -7,11 +7,8 @@
 \usepackage{longtable}
 \usepackage{hyperref}
 %Bold table headings:
-\usepackage{array, booktabs}
-\usepackage{makecell}
-\renewcommand\theadfont{\bfseries}
 \usepackage[table]{xcolor}
-
+  
 %Bold captions for images
 \usepackage[labelfont=bf]{caption}
 
@@ -191,8 +188,7 @@ The Convolutional Neural Networks (CNN) are considered as a
 state-of-the-art in the field image recognition. In many research papers
 and real situations, they are reported to work well for finding patterns
 in the images and for the image classification. Detail description of
-CNN can be found lecture notes of A. Karpathy {[}7{]}
-
+CNN can be found lecture notes of A. Karpathy \cite{stanford}
 Let's briefly recap that typical CNN is composed of several layers. The
 input layer in our case is the potential field represented by a 2D
 array. In general, it can be an image in RGB or another format, once
@@ -293,18 +289,18 @@ Horizontal cylinder (HC) & 180 & 230 & 40\tabularnewline
 \label{tab:ConfusionMatrixSimpleModel}
 \end{longtable}
 
-\emph{Table 1. - }
-
-The accuracy of the simple model was oscilating around 50\% during the
-training process. However on the training set the simple model failed
-and it's result are similar to the random guessing. We can see that the
-model makes lot of errors for each anomaly type, not only for the
-expected Sphere vs Vertical cylindre.
+The accuracy of the simple model was oscilating around 50\% during the training
+process. Yet on the training set the simple model failed and achieved accuracy
+only 30\%. This result is worse than simple random guessing.  From the
+confusion matrix (Table \ref{tab:ConfusionMatrixSimpleModel}.) we can observe, that the
+model makes lot of errors.  Not only for the expected Sphere vs Vertical
+cylinder but for each anomaly type.
 
 The second model was originally published in \cite{lenka}
 This model was created by classic methods of computer vision such as
-edge and line detection. First, the original data are normalized and
-thresholded at 9 levels from 0.1 of maximum to 0.9 of maximum to get 9
+edge and line detection. It works as follows.
+
+First, the original data are normalized and thresholded at 9 levels from 0.1 of maximum to 0.9 of maximum to get 9
 black and white images. At the level 0.5, the linear structures and
 circular regions are searched in the algorithm using the Hough transform
 and centroid detection. When objects are detected, the algorithm runs
@@ -332,11 +328,15 @@ Horizontal cylinder (HC) & 0 & 0 & 244 & 6\tabularnewline
 \end{longtable}
 
 
-Compared to the machine learning models, there is no need of training
+CCompared to the machine learning models, there is no need of training
 for this model. The model also has one difference - if it has one more
-extra ``class'' - not classified. As we can see in the final confusion
-table, the model was uncertain about the sphere / vertical cylinder
-difference. A lot of vertical cylinders were not classified too.
+extra ``class'' - not classified. As we can see in its confusion
+matrix (Table \ref{tab:ConfusionMatrixBenchmark2}.), the model was uncertain about the Sphere / Vertical cylinder
+difference. A lot of vertical cylinders were not classified too. 
+
+This model achieved final accuracy 71.4\% on the test dataset. This will be our threshold value for accuracy of CNN model on the same data.
+
+
 
 \section{Methodology}\label{methodology}
 
@@ -393,9 +393,7 @@ has 1042 nodes and RELU activation function. It is followed by drop out
 layer with 40\% dropout rate. The final layer of our model is the
 softmax layer.
 
-The model is available in the project repository in two version. 
-
-First file \textit{src/initial\_cnn.py} contains the initial version before refinement.
+The model is available in the project repository in two versions. The first file \textit{src/initial\_cnn.py} contains the inital version before refinement.
 The second file \textit{src/final\_cnn.py} contains the final tuned model described above. 
 
 The data are fed to the model by tensor flow queue. A mini batch of 64
@@ -423,7 +421,7 @@ as a part of her research. It is written in Python 2.7 and is available
 in the GitHub repository with this report as generator.py.
 
 Simple linear benchmark model is implemented using Tensor Flow and is
-available in project repository as simple\_model.py.
+available in project repository as \textit{src/simple\_model.py}.
 
 \subsection{Refinement}\label{refinement}
 
@@ -507,28 +505,28 @@ Horizontal cylinder (HC) & & 14 & 436\tabularnewline
 
 \subsection{Free-Form Visualization}\label{Free-Form Visualization}
 
-Examples given in \ref{data-exploration} were good for the understanding how the potential field
+Examples given in section \ref{data-exploration} were good for the understanding how the potential field
 looks. In this chapter we provide another three samples, taken from the test dataset. All three
 were correctly classified by the model.
 
 \begin{figure}[!htp]
 \centerline{\includegraphics[width=10cm]{img/sphere_normalized.png}}
 \renewcommand{\figurename}{Figure}
-\caption[Example of Sphere]{Example of normalized Sphere sample, from the test set. Correctly classified as Sphere.}
+\caption[Example of Sphere]{Example of normalized Sphere sample from the test set. Correctly classified by final model as Sphere.}
 \label{fig:NormalizedSphere}
 \end{figure}
 
 \begin{figure}[!htp]
 \centerline{\includegraphics[width=10cm]{img/vertical_normalized.png}}
 \renewcommand{\figurename}{Figure}
-\caption[Example of normalized Vertical cylinder.]{Example of normalized Vertical cylinder sample, from the test set. Correctly classified as Vertical cylider.}
+\caption[Example of normalized Vertical cylinder.]{Example of normalized Vertical cylinder sample from the test set. Correctly classified by the final model as Vertical cylider.}
 \label{fig:NormalizedVertical}
 \end{figure}
 
 \begin{figure}[!htp]
 \centerline{\includegraphics[width=10cm]{img/horizontal_normalized.png}}
 \renewcommand{\figurename}{Figure}
-\caption[Accuracy of CNN model before tuning of parameters.]{Accuracy of CNN model before tuning of parameters.}
+\caption[Example of normalized Horizontal cylinder.]{Example of normalized Horizontal cylinder sample from the test set. Correctly classified by the final model as Horizontal cylider.}
 \label{fig:NormalizedHorizontal}
 \end{figure}
 
@@ -536,7 +534,7 @@ Compared to the examples from \ref{data-exploration} these models are not center
 anomaly is different for each other. 
 
 Even for the trained expert would be difficult to classify the anomaly just from this samples. Further computation and
-investigation of the potential field would be necessary.
+investigation of the potential field would be necessary. Yet our model classify all three samples correctly.
 
 
 \subsection{Reflection}\label{reflection}

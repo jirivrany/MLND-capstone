@@ -2,8 +2,12 @@
 @author Jiri Vrany
 @license MIT
 
-based on TensorFlow CNN tutorial
+Final CNN clasifier. Implemeted with TensorFlow and Pandas.
+
+Based on TensorFlow CNN tutorials 
+
 """
+
 import tensorflow as tf
 import glob
 import sys
@@ -18,6 +22,7 @@ BATCH_SIZE = 64
 EPOCHS = 2
 STEPS = TRDATA // BATCH_SIZE
 
+#basic settings
 directory = "../data/gravimetrie/random_tf_normalized/*.tfrecords"
 filenames = glob.glob(directory)
 print("FILES: ", len(filenames))
@@ -35,6 +40,9 @@ valid_queue = tf.train.string_input_producer(
 
 
 def read_and_decode(filename_queue):
+    """
+    function for reading TF records samples from the filename_queue
+    """
     reader = tf.TFRecordReader()
     _, serialized_example = reader.read(filename_queue)
     features = tf.parse_single_example(
@@ -58,24 +66,42 @@ def read_and_decode(filename_queue):
 
 
 def weight_variable(shape, stddev=0.01):
+    """
+    helper for the weight variable 
+    @returns tensor flow variable of given shape
+    """
     initial = tf.truncated_normal(shape, stddev=stddev)
     return tf.Variable(initial)
 
 
 def bias_variable(shape, stddev=0.01):
+    """
+    helper for the bias variable 
+    @returns tensor flow variable of given shape
+    """
     initial = tf.constant(stddev, shape=shape)
     return tf.Variable(initial)
 
 
 def conv2d(x, W):
+    """
+    helper for convolutional layer 
+    @returns tensor flow conv2d layer 
+    """
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
 
 def max_pool_2x2(x):
+    """
+    helper for pooling layer 
+    @returns tensor flow pooling layer 
+    """
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                           strides=[1, 2, 2, 1], padding='SAME')
 
+# the main CNN code
 with tf.Session() as sess:
+    # get the data
     image, label = read_and_decode(training_queue)
     test_image, test_label = read_and_decode(test_queue)
     valid_image, valid_label = read_and_decode(valid_queue)
@@ -95,7 +121,7 @@ with tf.Session() as sess:
         capacity=2000,
         min_after_dequeue=1000)
 
-    # CNN
+    # CNN implementation
     x = tf.placeholder(tf.float32, [None, 100 * 100])
     y_ = tf.placeholder(tf.float32, [None, NrCLASS])
 
@@ -199,7 +225,4 @@ with tf.Session() as sess:
     coord.request_stop()
     coord.join(threads)
 
-     # Save Model
-    save_model_path = '../models/playground-3epochs'
-    saver = tf.train.Saver()
-    save_path = saver.save(sess, save_model_path)
+    
