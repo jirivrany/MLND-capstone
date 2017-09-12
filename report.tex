@@ -24,12 +24,12 @@
     \vspace*{\stretch{1.0}}
     \begin{center}
         \Large{Udacity Machine Learning Nanodegree Capstone}
-        
+
         \LARGE\textbf{Using deep learning for anomaly detection in geophysical survey}
-        
+
         \vspace{1cm}
         \large\textit{Jiri Vrany}
-        
+
         \normalsize{September, 2017}
     \end{center}
     \vspace*{\stretch{2.0}}
@@ -73,33 +73,37 @@ type.
 
 \subsection{Metrics}
 
-We used the classification accuracy as a primary evaluation metric. A
-classification accuracy is a number of correct predictions from all
-predictions made by the model.
+We used the classification \textbf{accuracy} as a first metric during the network learning process. 
 
-For the accuracy computation, We used the algorithm described in
-{[}3{]}.
+A classification accuracy is the number of correct predictions from all
+predictions. In our case it is the number of correctly classified anomalies
+divided by the total number of samples.
 
-First, compute the correct predictions tensor:
+\begin{equation}
+accuracy = \frac{number~of~correct~predictions}{total~number~of~samples}
+\end{equation}
 
-\begin{verbatim}
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-\end{verbatim}
 
-Then cast this tensor of booleans to float32 and compute the accuracy as
-the mean value of the tensor.
+Accuracy is simple metric but it has to be used with caution for unbalanced
+datasets.  Because there is a risk of so called Accuracy Paradox.  Yet our
+dataset is well balanced and thus we are justified, that accuracy is usable.
+      
 
-\begin{verbatim}
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-\end{verbatim}
+The second method used for analysis of the results was the \textbf{confusion
+matrix} \cite{conmat}. It is a simple analytic tool, not just a single metric.
 
-The second method used for analysis of the result was the confusion
-matrix. The confusion matrix is often used for visualization of
-classification algorithm result. An element of the matrix represents the
-number of testing samples classified as a certain class. We can easily
-see where the algorithm performs well or where it misclassify some data.
+The confusion matrix is often used for visualization of classification algorithm
+result. An element of the matrix represents the number of testing samples
+classified as a certain class. This metric is  more reliable than Accuracy,
+because it shows all the errors of classifier. Or we can say, that the accuracy
+is one of the metric included in the confusion matrix. Other metrics such as
+Precision or Recall can be computed easily from the confusion matrix.
 
-\section{Analysis}\label{ii.-analysis}
+We used it to compare the results of classification on testing dataset for the
+model and benchmarks. We are justified that this tool is strong enough for this
+comparison.
+
+\section{Analysis}label{ii.-analysis}
 
 \subsection{Data Exploration}\label{data-exploration}
 
@@ -221,7 +225,7 @@ most important parameters tuned in this project were:
   complexity of classification problem and the training algorithm. There
   is no general golden rule but start with the simple network and add
   layers if necessary seems to be a reasonable strategy.
-  
+
 \item
   \textbf{Size of convolutional filters}. The size of neuron receptive
   field (or filter size) depends on the type of data that we want to
@@ -272,7 +276,7 @@ This model was trained on similar dataset as CNN.
 \centerline{\includegraphics[width=10cm]{img/simple_model_accuracy.png}}
 \renewcommand{\figurename}{Figure}
 \caption[Accuracy of simple linear model]{Accuracy of simple linear model}
-\label{fig:HorizontalAnomalyExample}
+\label{fig:SimpleModelAccuracy}
 \end{figure}
 
 
@@ -343,9 +347,9 @@ difference. A lot of vertical cylinders were not classified too.
 Each sample in the dataset contains some level of randomly created
 noise. This noise was generated to make the artificial data more
 realistic. However, the experiments with data during development of
-original model \cite{lenka}
-proved, that the noise must be filtered out. Without filtering the
-algorithm was unable to detect the edges in the data sample at all.
+original model \cite{lenka} proved, that the noise must be filtered out. 
+
+Without filtering the algorithm was unable to detect the edges in the data sample at all.
 Several methods of filtering were tested and finally, the adaptive
 Wiener filter was selected as the preprocessing denoising filter.
 
@@ -389,9 +393,10 @@ has 1042 nodes and RELU activation function. It is followed by drop out
 layer with 40\% dropout rate. The final layer of our model is the
 softmax layer.
 
-The model is available in the project repository in two version. First
-file initial\_cnn.py contains the initial version, second final\_cnn.py
-contains the final tuned model described above.
+The model is available in the project repository in two version. 
+
+First file \textit{src/initial\_cnn.py} contains the initial version before refinement.
+The second file \textit{src/final\_cnn.py} contains the final tuned model described above. 
 
 The data are fed to the model by tensor flow queue. A mini batch of 64
 samples is used in the final architecture. After each 10 training steps,
@@ -403,7 +408,15 @@ scipy.signal package. Then normalized with L2 norm from sklearn
 preprocessing module. Finally, the normalized file is horizontally and
 vertically flipped and all three new files are stored in TF Record
 format. The preprocessing script is available in the project repository
-as preprocess.py.
+as \textit{src/preprocess.py}.
+
+
+The biggest issue to solve during the coding was the implementation of Record
+Reader. Most of the information sources   about TensorFlow is using prepared
+datasets. We also run to error with wrongly implemented one-hot-encoding. This
+error was very confusing because the model looks like it is learning. But there
+was no increase in accuracy no matter what combination of parameters we used.
+After fixing this, the model finally started to learn.
 
 The generator script for the data was created by Lenka Koskova Triskova
 as a part of her research. It is written in Python 2.7 and is available
@@ -422,6 +435,9 @@ of available GPU. The depth of the filter on the first layer was 32 and
 64 on the second layer. With this setting, the network did not learn at
 all and its precision was close to random guessing.
 
+As we can see on figure \ref{fig:InitialModelAccuracy} the accuracy of initial
+model was oscillating bellow 0.4 during the training.  The final accuracy on
+test set was 34\%.
 
 \begin{figure}[!htp]
 \centerline{\includegraphics[width=10cm]{img/initial_model_accuracy.png}}
@@ -430,13 +446,15 @@ all and its precision was close to random guessing.
 \label{fig:InitialModelAccuracy}
 \end{figure}
 
+We began the refinement of parameters with the increase of the filter depth. The
+new values were 128 on first and 256 on the second layer.  After this change
+model starts to learn and achieved final accuracy 91\% on the test dataset.
 
+As a next step we increased the filter size on the first convolutional layer to
+7x7. Together with this change we decreased the minibatch size to 64.
 
-We began the refinement of parameters with the increase of the filter
-depth to 128 on first and 256 on the second layer. Then increase of
-filter size on the first convolutional layer to 7x7, and decrease the
-minibatch size to 64. With those settings, the model starts to learn
-with good accuracy.
+With those settings, the model achieved final accuracy 97.6% on the test
+dataset.
 
 \section{Results}\label{results}
 
@@ -454,7 +472,7 @@ simple model behaved well.
 \centerline{\includegraphics[width=10cm]{img/final_model_accuracy.png}}
 \renewcommand{\figurename}{Figure}
 \caption[Accuracy of final CNN model.]{Accuracy of final CNN model.}
-\label{fig:InitialModelAccuracy}
+\label{fig:FinalModelAccuracy}
 \end{figure}
 
 
@@ -482,10 +500,44 @@ Vertical cylinder (VC) & 0 & 320 & 0\tabularnewline
 Horizontal cylinder (HC) & & 14 & 436\tabularnewline
 \bottomrule
 \caption[Confusion matrix of final CNN model]{Confusion matrix of final CNN model.}
-\label{tab:ConfusionMatrixBenchmark2}
+\label{tab:ConfusionMatrixFinalModel}
 \end{longtable}
 
 \section{Conclusion}\label{conclusion}
+
+\subsection{Free-Form Visualization}\label{Free-Form Visualization}
+
+Examples given in \ref{data-exploration} were good for the understanding how the potential field
+looks. In this chapter we provide another three samples, taken from the test dataset. All three
+were correctly classified by the model.
+
+\begin{figure}[!htp]
+\centerline{\includegraphics[width=10cm]{img/sphere_normalized.png}}
+\renewcommand{\figurename}{Figure}
+\caption[Example of Sphere]{Example of normalized Sphere sample, from the test set. Correctly classified as Sphere.}
+\label{fig:NormalizedSphere}
+\end{figure}
+
+\begin{figure}[!htp]
+\centerline{\includegraphics[width=10cm]{img/vertical_normalized.png}}
+\renewcommand{\figurename}{Figure}
+\caption[Example of normalized Vertical cylinder.]{Example of normalized Vertical cylinder sample, from the test set. Correctly classified as Vertical cylider.}
+\label{fig:NormalizedVertical}
+\end{figure}
+
+\begin{figure}[!htp]
+\centerline{\includegraphics[width=10cm]{img/horizontal_normalized.png}}
+\renewcommand{\figurename}{Figure}
+\caption[Accuracy of CNN model before tuning of parameters.]{Accuracy of CNN model before tuning of parameters.}
+\label{fig:NormalizedHorizontal}
+\end{figure}
+
+Compared to the examples from \ref{data-exploration} these models are not centered, and the size of
+anomaly is different for each other. 
+
+Even for the trained expert would be difficult to classify the anomaly just from this samples. Further computation and
+investigation of the potential field would be necessary.
+
 
 \subsection{Reflection}\label{reflection}
 
@@ -526,14 +578,19 @@ start to classify more anomalies, but also start to work on the
 detection of the anomaly position, the different levels of noise and
 other improvements of this basic model.
 
-\begin{thebibliography}{References}
-\bibitem{Salem}Salem A.: Multi-deconvolution analysis of potential field data, Journal of Applied Geophysics, 2011, Vol. 74, Issue 2-3, Pages 151-156.
-\bibitem{Stanford}S class CS231n: Convolutional Neural Networks for Visual Recognition: A course notes, available online at \href{http://cs231n.github.io/}{http://cs231n.github.io/}.
-\bibitem{adam}Diederik P. Kingma, Jimmy Ba: Adam: A Method for Stochastic Optimization, 3rd International Conference for Learning Representations, San Diego, 2015
-\bibitem{gradient-comparsion}Sebastian Ruder: An overview of gradient descent optimization algorithms
-\bibitem{alexnet}Alex Krizhevsky and Sutskever, Ilya and Hinton, Geoffrey E: ImageNet Classification with Deep Convolutional Neural Networks, Advances in Neural Information Processing Systems 25, 2012
-\bibitem{tfmanual}TensorFlow manual: Deep MNIST for Experts, 2017
 
+\begin{thebibliography}{References}
+\bibitem{salem}Salem A.: Multi-deconvolution analysis of potential field data, Journal of Applied Geophysics, 2011, Vol. 74, Issue 2-3, Pages 151-156.
+\bibitem{lenka} Koskova Triskova L., Novak J.: Application of edge and line detection to detect the near surface anomalies in potential data, 2013, International conference on Pattern recognition Applications and Methods 2013, Barcelona
+\bibitem{Stanford}S class CS231n: Convolutional Neural Networks for Visual Recognition: A course notes, available online at \href{http://cs231n.github.io/}{http://cs231n.github.io/}.
+\bibitem{adam}Kingma, Diederik P. and Jimmy Ba. “Adam: A Method for Stochastic Optimization.” CoRR abs/1412.6980 (2014): n. pag.
+\bibitem{gradient-comparsion}Ruder, Sebastian. “An overview of gradient descent optimization algorithms.” CoRR abs/1609.04747 (2016): n. pag.
+\bibitem{alexnet}Krizhevsky, Alex et al. “ImageNet Classification with Deep Convolutional Neural Networks.” Commun. ACM 60 (2012): 84-90.
+\bibitem{tfmanual}TensorFlow manual: Deep MNIST for Experts, 2017
+\bibitem{minibatch}Keskar, Nitish Shirish et al. “On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima.” CoRR abs/1609.04836 (2016): n. pag.
+\bibitem{conmat}Sammut, Claude a Geoffrey I. WEBB. Encyclopedia of machine learning. London: Springer, 2010. ISBN 978-0-387-30768-8. pp 209-209
 \end{thebibliography}
+
+
 
 \end{document}
